@@ -2,7 +2,6 @@ package com.proyecto.literalura.model;
 
 import jakarta.persistence.*;
 
-import java.util.Collections;
 import java.util.List;
 @Entity
 @Table(name = "libros")
@@ -13,9 +12,8 @@ public class Libro {
     private Long id;
     @Column(unique = true)
     private String titulo;
-    private String autorNombre;
-    private Integer añoNacimiento;
-    private Integer añoFallecimiento;
+    @ManyToOne
+    private Autor autor;
     private String lenguaje;
     private Integer numeroDescargas;
 
@@ -35,28 +33,12 @@ public class Libro {
         this.titulo = titulo;
     }
 
-    public String getAutorNombre() {
-        return autorNombre;
+    public Autor getAutor() {
+        return autor;
     }
 
-    public void setAutorNombre(String autorNombre) {
-        this.autorNombre = autorNombre;
-    }
-
-    public Integer getAñoNacimiento() {
-        return añoNacimiento;
-    }
-
-    public void setAñoNacimiento(Integer añoNacimiento) {
-        this.añoNacimiento = añoNacimiento;
-    }
-
-    public Integer getAñoFallecimiento() {
-        return añoFallecimiento;
-    }
-
-    public void setAñoFallecimiento(Integer añoFallecimiento) {
-        this.añoFallecimiento = añoFallecimiento;
+    public void setAutor(Autor autor) {
+        this.autor = autor;
     }
 
     public String getLenguaje() {
@@ -77,25 +59,20 @@ public class Libro {
 
     public Libro(){}
 
-    public Libro(List<DatosLibro> datos) {
-        this.titulo = datos.get(0).titulo();
-        this.autorNombre = datos.get(0).datosAutores().get(0).nombre();
-        this.añoNacimiento = datos.get(0).datosAutores().get(0).añoNacimiento();
-        this.añoFallecimiento = datos.get(0).datosAutores().get(0).añoFallecimiento();
-        this.lenguaje = String.valueOf(datos.get(0).datosLenguajes());
-        this.numeroDescargas = datos.get(0).numeroDescargas();
+    public Libro(List<DatosLibro> datosLibroList, Autor autor) {
+        this.titulo = datosLibroList.get(0).titulo();
+        this.autor = autor;
+        this.lenguaje = String.valueOf(datosLibroList.get(0).datosLenguajes());
+        this.numeroDescargas = datosLibroList.get(0).numeroDescargas();
     }
 
     @Override
     public String toString() {
-        return "********************** " + "\n"+
-                "Libro" +"\n"+
-                "Titulo='" + titulo + '\n' +
-                "Autor='" + autorNombre + '\n' +
-                ", año de nacimiento='" + añoNacimiento + '\n' +
-                ", año de Fallecimiento='" + añoFallecimiento + '\n' +
-                ", lenguaje='" + lenguaje + '\n' +
-                ", numero de descargas=" + numeroDescargas + "\n" +
-                '\n';
+        return "* * * * Libro * * * *" + "\n"+
+                "Titulo " + titulo + '\n' +
+                "Autor " + autor.getNombre() + "\n"+
+                "Lenguaje " + lenguaje + "\n"+
+                "Numero de Descargas=" + numeroDescargas + "\n"
+                ;
     }
 }

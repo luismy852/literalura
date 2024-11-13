@@ -1,26 +1,28 @@
 package com.proyecto.literalura.principal;
 
 import com.proyecto.literalura.model.*;
+import com.proyecto.literalura.repository.AutorRepository;
 import com.proyecto.literalura.repository.LibroRepository;
 import com.proyecto.literalura.service.ConsumoApi;
 import com.proyecto.literalura.service.ConvierteDatos;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Principal {
 
     @Autowired
     private LibroRepository repository;
+    @Autowired
+    private AutorRepository autorRepository;
 
-    public Principal(LibroRepository repository) {
+    public Principal(LibroRepository repository, AutorRepository autorRepository) {
         this.repository = repository;
+        this.autorRepository = autorRepository;
     }
+
+
 
     private final String URL_BASE = "https://gutendex.com/books/?search=";
     private Scanner teclado = new Scanner(System.in);
@@ -31,12 +33,12 @@ public class Principal {
 
     public void menu(){
 
-
-        Integer decision = -1;
+        System.out.println("Bienvenido");
+        int decision = -1;
 
         while (decision != 0){
             System.out.println("""
-                            Elige la opción a traves de su numero:
+                            Elige la opción a través de su número:
                             
                             1. Buscar libros
                             2. Listar libros consultados
@@ -56,22 +58,27 @@ public class Principal {
                     var json = consumoApi.obtenerDatos(URL_BASE + busqueda.replace(" ", "%20"));
                     System.out.println(busqueda);
                     var datos =  convierteDatos.obtenerDatos(json, Datos.class);
+                    List<DatosAutor> datosAutorList = datos.resultados().get(0).datosAutores();
                     List<DatosLibro> datosLibroList = datos.resultados();
                     System.out.println(json);
-                    System.out.println(datos);
-                    Libro libro = new Libro(datosLibroList);
-                    System.out.println(libro);
-                    try {
-                        if (repository.existsByTitulo(libro.getTitulo())){
-                            System.out.println("libro ya esta regitrado :)");
-                        }else {
 
-                            repository.save(libro);
+                    Autor autor = new Autor(datosAutorList);
+                    if (!autorRepository.existsByNombre(autor.getNombre())){
+                        autorRepository.save(autor);
+                    } else {
+                        var nombre = autor.getNombre();
+                        autor = autorRepository.findByNombreIgnoreCase(nombre);
+                        System.out.println(autor);
+                        if (repository.existsByTitulo(datosLibroList.get(0).titulo())){
+                            System.out.println(datosLibroList.get(0).titulo());
+                            System.out.println("El libro ya está registrado :)");
+                            break;
                         }
-
-                    } catch (DataIntegrityViolationException e){
-                        System.out.println("Este libro ya esta registraso :)");
                     }
+
+                    Libro libro = new Libro(datosLibroList,autor);
+                    repository.save(libro);
+                    System.out.println(libro);
                     break;
 
                 case 2:
@@ -79,29 +86,25 @@ public class Principal {
                     break;
 
                 case 3:
-                    var libros = repository.findAll();
-                    var autores = libros.stream().map(l-> new Autor(l.getAutorNombre(), l.getAñoNacimiento(), l.getAñoFallecimiento(), Collections.singletonList(l.getTitulo())))
-                            .toList();
-
+                    System.out.println(autorRepository.findAll());
                     break;
 
                 case 4:
                     System.out.println("ingresa el año");
                     var añoSeleccionado = teclado.nextInt();
-                     var autoresVivos = repository.findByAñoFallecimientoGreaterThan(añoSeleccionado);
-                     autoresVivos.stream().map(l-> new Autor(l.getAutorNombre(), l.getAñoNacimiento(), l.getAñoFallecimiento(), Collections.singletonList(l.getTitulo())))
-                             .forEach(System.out::println);
+                    System.out.println(autorRepository.findByAñoFallecimientoGreaterThanAndAñoNacimientoIsLessThan(
+                            añoSeleccionado, añoSeleccionado));
                     break;
 
 
                 case 5:
                     System.out.println("""
-                            Escribe las siglas del idoma que deseas buscar
+                            Escribe las siglas del idioma que deseas buscar
                             
                             es Español
-                            en Ingles
-                            fr Frances
-                            pt Portuges
+                            en Inglés
+                            fr Francés
+                            pt Portugés
                             """);
                     var busquedaIdioma = teclado.nextLine();
                     var resultadoBusqueda =repository.findByLenguajeContains(busquedaIdioma);
@@ -111,6 +114,12 @@ public class Principal {
                         System.out.println(resultadoBusqueda);
                     }
                     break;
+
+                case 0:
+                    System.out.println("Gracias por utilizar el programa");
+
+                default:
+                    System.out.println("Escoge una opción valida");
             }
 
         }
