@@ -1,4 +1,7 @@
-![literalura](https://github.com/user-attachments/assets/228bc224-36c8-43c3-bf17-8991a89815f0)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/9a868d83-d76e-4708-a85b-756bd6a9c525" alt="banner">
+</p>
+
 
  ![Badge en Desarollo](https://img.shields.io/badge/STATUS-TERMINADO-blue)
 
@@ -14,11 +17,6 @@
 - `Listar Autores Vivos en un Año Determinado:`:Permite listar a los autores que siguen vivos en un año específico. Esta función filtra los autores por su año de fallecimiento (si está disponible) y devuelve aquellos que no tienen año de fallecimiento o su año de fallecimiento es posterior al año ingresado.
 
 - `Listar Libros por Idioma:`: Filtra los libros almacenados en la base de datos por idioma, permitiendo a los usuarios obtener una lista de libros en un idioma específico.
-
-## ✔️ Tecnologías utilizadas
-- `Java 17`
-- `Spring`
-- `PostgreSQL`
 
 ## Uso de la API
 Este proyecto consume una API externa (Gutendex) para obtener información sobre libros. Los datos se consultan en tiempo real cada vez que un usuario realiza una búsqueda por título. A continuación, se detalla el flujo de trabajo:
@@ -41,3 +39,11 @@ El proyecto utiliza dos tablas principales en la base de datos:
 - `Campos:`: Id, Titulo, Autor_Id, Lenguaje.
 - `Tabla Autores:`: Almacena la información de cada autor (como Nombre, Fecha de Nacimiento, etc.).
 - `Campos:`: Id, Nombre, añoNacimiento, añoFallecimiento.
+
+La relación entre libros y autores es de uno a muchos, es decir, un autor puede escribir varios libros, pero cada libro tiene un solo autor.
+
+## ✔️ Tecnologías utilizadas
+- `Java 17`
+- `Spring`
+- `PostgreSQL`
+- `JPA`
